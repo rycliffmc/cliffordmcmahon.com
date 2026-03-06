@@ -610,11 +610,13 @@ a:hover {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-.highlight-border {
+.pricing-card:hover {
     border: 1px solid rgba(46, 107, 255, 0.5);
     box-shadow: 0 0 30px rgba(46, 107, 255, 0.1);
+    transform: translateY(-5px);
 }
 
 .pricing-header {
