@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kevin McDonald — Revenue Architecture Overview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --accent: #6366f1;
+    --accent-glow: rgba(99,102,241,0.25);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 56px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-left h1 {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .header-left .tagline {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    max-width: 420px;
+  }
+
+  .header-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .header-right .name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .header-right .contact {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* ── TWO-COLUMN LAYOUT ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+
+  /* ── AUDIENCE STATS ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+
+  .stat-box .value {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+  }
+
+  .stat-box .label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .total-reach {
+    text-align: center;
+    padding: 10px;
+    background: rgba(99,102,241,0.06);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .total-reach strong {
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+  }
+
+  /* ── SCORE CARD ── */
+  .score-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+
+  .score-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .score-circle .num {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+
+  .score-circle .denom {
+    font-size: 10px;
+    opacity: 0.7;
+  }
+
+  .score-detail { flex: 1; }
+
+  .score-detail .score-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .score-detail .score-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .arrow-between {
+    font-size: 18px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  /* ── GAP LIST ── */
+  .gap-list {
+    list-style: none;
+  }
+
+  .gap-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-dim);
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+  }
+
+  .gap-list li:last-child { border-bottom: none; }
+
+  .gap-list .icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    margin-top: 1px;
+  }
+
+  .gap-list strong { color: var(--text); }
+
+  /* ── OPPORTUNITY CARDS ── */
+  .opp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .opp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .opp-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .opp-card p {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ── PILOT SECTION ── */
+  .pilot-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    border-top: 3px solid var(--accent);
+  }
+
+  .pilot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+  }
+
+  .pilot-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .pilot-header .price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .pilot-header .price-note {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+  }
+
+  .pilot-deliverables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+  }
+
+  .pilot-deliverables .item {
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pilot-deliverables .check {
+    color: var(--green);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ── AFTER PILOT ── */
+  .after-pilot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .option-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .option-card .option-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+
+  .option-card .option-price {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .option-card .option-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* ── BOTTOM BAR ── */
+  .bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .bottom-bar .closing {
+    font-size: 14px;
+    color: var(--text-dim);
+    max-width: 600px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .bottom-bar .closing strong {
+    color: var(--text);
+    font-style: normal;
+  }
+
+  .cta-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .cta-btn:hover {
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: translateY(-1px);
+  }
+
+  /* ── CONFIDENTIAL STRIP ── */
+  .confidential {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--border);
+    text-align: center;
+    margin-top: 24px;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { padding: 24px 32px; background: white; color: #1a1a2e; }
+    .stat-box, .score-card, .opp-card, .pilot-section, .option-card { border-color: #ddd; background: #f9f9fc; }
+    .section-label { color: #6366f1; }
+    .cta-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <div class="header-left">
+    <h1>Revenue Architecture<br>for Kevin McDonald</h1>
+    <p class="tagline">You've built a 700K+ audience across 7 platforms. This is the system to turn that attention into predictable, compounding revenue.</p>
+  </div>
+  <div class="header-right">
+    <div class="name">Clifford McMahon</div>
+    <div class="contact">
+      Creator Revenue Operator<br>
+      cliffordmcmahon.com
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOP ROW: AUDIENCE + SCORE ══ -->
+<div class="main-grid">
+
+  <!-- LEFT: Your Audience -->
+  <div>
+    <div class="section-label">Your Audience</div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="value">234K</div>
+        <div class="label">Instagram</div>
+      </div>
+      <div class="stat-box">
+        <div class="value">226.7K</div>
+        <div class="label">TikTok</div>
+      </div>
+      <div class="stat-box">
+        <div class="value">167.8K</div>
+        <div class="label">X / Twitter</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="value">41K</div>
+        <div class="label">YouTube</div>
+      </div>
+      <div class="stat-box">
+        <div class="value">38K</div>
+        <div class="label">Threads</div>
+      </div>
+      <div class="stat-box">
+        <div class="value">15.7K</div>
+        <div class="label">Twitch</div>
+      </div>
+    </div>
+
+    <div class="total-reach">
+      Total Reach: <strong>714K confirmed</strong> · 876K estimated
+    </div>
+  </div>
+
+  <!-- RIGHT: Revenue Health Score -->
+  <div>
+    <div class="section-label">Revenue Health Score</div>
+
+    <div class="score-card">
+      <div class="score-circle" style="background:var(--red-dim);color:var(--red);">
+        <div class="num">2</div>
+        <div class="denom">/ 10</div>
+      </div>
+      <div class="arrow-between">→</div>
+      <div class="score-circle" style="background:var(--green-dim);color:var(--green);">
+        <div class="num">8</div>
+        <div class="denom">/ 10</div>
+      </div>
+      <div class="score-detail">
+        <div class="score-title">Current → 90-Day Target</div>
+        <div class="score-desc">Scored across revenue diversity, recurring income, sponsor infrastructure, owned channels, and scalable income.</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:16px;">Key Gaps</div>
+    <ul class="gap-list">
+      <li>
+        <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
+        <span><strong>No media kit or rate card</strong> — sponsors don't know how to buy you</span>
+      </li>
+      <li>
+        <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
+        <span><strong>No email list</strong> — 100% platform-dependent, zero owned audience</span>
+      </li>
+      <li>
+        <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
+        <span><strong>No digital products</strong> — expertise isn't packaged for passive income</span>
+      </li>
+      <li>
+        <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
+        <span><strong>Patreon capped at $7</strong> — 1,254 members with no premium tier for superfans</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ MIDDLE: OPPORTUNITIES ══ -->
+<div class="section-label">Revenue Opportunities I'd Build</div>
+<div class="opp-grid">
+  <div class="opp-card" style="border-left-color:var(--green);">
+    <h4>Brand Sponsorships</h4>
+    <p>Build rate card, media kit, and a 25-brand prospect pipeline. Bundle IG + TikTok + Twitch + YouTube into tiered packages. One stream becomes 3–5 branded touchpoints.</p>
+  </div>
+  <div class="opp-card" style="border-left-color:var(--green);">
+    <h4>Patreon Tier Expansion</h4>
+    <p>Add a $15–25 VIP tier for superfans. With 1,254 members already paying, even 10% upgrading adds $1,200–2,500/mo in recurring revenue.</p>
+  </div>
+  <div class="opp-card" style="border-left-color:var(--accent);">
+    <h4>LGBTQ+ Audience Premium</h4>
+    <p>$3.9T in global purchasing power. 85% prefer brands in LGBT media. 66% stay loyal even when cheaper options exist. This is a premium sponsorship position — priced accordingly.</p>
+  </div>
+  <div class="opp-card" style="border-left-color:var(--accent);">
+    <h4>Digital Products + Affiliate</h4>
+    <p>Fitness guides, workout programs, curated product recs with tracked affiliate links. Revenue that works while you sleep.</p>
+  </div>
+</div>
+
+<!-- ══ PILOT + PRICING ══ -->
+<div class="pilot-section">
+  <div class="pilot-header">
+    <h3>90-Day Pilot</h3>
+    <div style="text-align:right;">
+      <div class="price">$2,000<span class="price-note"> /month</span></div>
+      <div style="font-size:11px;color:var(--text-dim);">$6,000 total · no commission · no % taken</div>
+    </div>
+  </div>
+  <div class="pilot-deliverables">
+    <div class="item"><span class="check">✓</span> Full revenue audit + baseline score</div>
+    <div class="item"><span class="check">✓</span> Sponsor pipeline system (25+ brands)</div>
+    <div class="item"><span class="check">✓</span> Rate card + campaign packaging</div>
+    <div class="item"><span class="check">✓</span> Patreon tier restructure</div>
+    <div class="item"><span class="check">✓</span> Media kit + tracking infrastructure</div>
+    <div class="item"><span class="check">✓</span> Revenue dashboards + reporting</div>
+  </div>
+</div>
+
+<div class="section-label">After The Pilot</div>
+<div class="after-pilot">
+  <div class="option-card">
+    <div class="option-label" style="color:var(--accent);">Option A</div>
+    <div class="option-price">$3,500/month</div>
+    <div class="option-desc">Flat retainer. No commission, no tracking. Predictable and simple.</div>
+  </div>
+  <div class="option-card" style="border-color:rgba(99,102,241,0.3);">
+    <div class="option-label" style="color:var(--green);">Option B — Recommended</div>
+    <div class="option-price">$2,000/mo + 15%</div>
+    <div class="option-desc">Commission only on <strong style="color:var(--text);">new revenue above your current baseline</strong>. You only pay the % when I've already made you money you didn't have before.</div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM ══ -->
+<div class="bottom-bar">
+  <div class="closing">
+    This overview covers the highlights — <strong>I'd love to walk through the full analysis together.</strong> I've built a detailed deck covering your audience data, platform metrics, revenue scoring framework, and the full 90-day build plan.
+  </div>
+  <a href="mailto:rycliffmc@gmail.com?subject=Revenue%20Architecture%20—%20Let's%20Talk" class="cta-btn">Let's Set Up a Call</a>
+</div>
+
+<div class="confidential">Confidential · Prepared for Kevin McDonald · March 2026</div>
+
+</body>
+</html>
