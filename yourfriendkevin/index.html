@@ -4,22 +4,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Friend Kevin — Revenue Architecture Overview</title>
+  <title>Something I Built for You, Kevin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
     :root {
-      --bg: #0a0a0f;
-      --surface: #12121a;
-      --border: #2a2a3a;
-      --text: #e8e8f0;
-      --text-dim: #8888a0;
-      --accent: #6366f1;
-      --accent-glow: rgba(99, 102, 241, 0.25);
-      --green: #22c55e;
-      --green-dim: rgba(34, 197, 94, 0.12);
-      --red: #ef4444;
-      --red-dim: rgba(239, 68, 68, 0.12);
+      --bg: #080810;
+      --surface: #0f0f1a;
+      --border: rgba(255, 255, 255, 0.07);
+      --text: #f0f0f5;
+      --text-dim: #888899;
+      --text-muted: #555566;
+      --gold: #c9a84c;
+      --gold-dim: rgba(201, 168, 76, 0.12);
+      --gold-glow: rgba(201, 168, 76, 0.25);
+      --pink: #e87ea1;
+      --pink-dim: rgba(232, 126, 161, 0.1);
+      --cyan: #5bc4d4;
+      --red: #e05555;
+      --red-dim: rgba(224, 85, 85, 0.1);
+      --green: #5cc98a;
+      --green-dim: rgba(92, 201, 138, 0.1);
     }
 
     * {
@@ -28,421 +35,792 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       background: var(--bg);
       color: var(--text);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* GRAIN OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* AMBIENT GLOW */
+    .ambient {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(201, 168, 76, 0.06) 0%, transparent 70%);
+      top: -200px;
+      right: -200px;
+    }
+
+    .ambient-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(232, 126, 161, 0.05) 0%, transparent 70%);
+      bottom: 20%;
+      left: -150px;
+    }
+
+    /* SECTIONS */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* HERO */
+    .hero {
       min-height: 100vh;
-      padding: 48px 56px;
-      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 48px 60px;
+      max-width: 900px;
       margin: 0 auto;
     }
 
-    /* ── HEADER ── */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 40px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .header-left h1 {
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1.15;
-      margin-bottom: 6px;
-    }
-
-    .header-left .tagline {
-      font-size: 14px;
-      color: var(--text-dim);
-      line-height: 1.5;
-      max-width: 420px;
-    }
-
-    .header-right {
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .header-right .name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--accent);
-      font-family: 'JetBrains Mono', monospace;
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
       text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-headline {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(48px, 7vw, 84px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+
+    .hero-headline em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      max-width: 560px;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+
+    .hero-sub strong {
+      color: var(--text);
+    }
+
+    .scroll-hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 1s forwards;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--text-muted);
+      animation: pulse 2s ease infinite;
+    }
+
+    /* DIVIDER */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 auto;
+    }
+
+    /* NUMBERS SECTION */
+    .numbers-section {
+      padding: 100px 48px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-bottom: 64px;
+    }
+
+    .number-block {
+      padding: 32px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      transition: all 0.4s ease;
+    }
+
+    .number-block:first-child {
+      border-radius: 12px 0 0 12px;
+    }
+
+    .number-block:last-child {
+      border-radius: 0 12px 12px 0;
+    }
+
+    .number-block:hover {
+      background: rgba(201, 168, 76, 0.04);
+      border-color: rgba(201, 168, 76, 0.2);
+    }
+
+    .number-platform {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
       letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .number-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text);
       margin-bottom: 4px;
     }
 
-    .header-right .contact {
+    .number-sub {
       font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .total-reach {
+      padding: 28px 32px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+
+    .total-reach-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .total-reach-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .total-reach-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* THE VENMO MOMENT */
+    .venmo-section {
+      padding: 100px 48px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .venmo-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 40px;
+      letter-spacing: -1px;
+    }
+
+    .venmo-headline .strike {
+      position: relative;
+      color: var(--text-dim);
+    }
+
+    .venmo-headline .strike::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 2px;
+      background: var(--red);
+      transform: rotate(-1deg);
+    }
+
+    .gap-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .gap-card {
+      padding: 28px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gap-card.bad {
+      border-left: 3px solid var(--red);
+    }
+
+    .gap-card.good {
+      border-left: 3px solid var(--green);
+    }
+
+    .gap-card-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .gap-card.bad .gap-card-tag {
+      color: var(--red);
+    }
+
+    .gap-card.good .gap-card-tag {
+      color: var(--green);
+    }
+
+    .gap-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .gap-card-desc {
+      font-size: 14px;
       color: var(--text-dim);
       line-height: 1.6;
     }
 
-    /* ── SECTION LABELS ── */
-    .section-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 2.5px;
-      color: var(--accent);
-      margin-bottom: 12px;
+    .venmo-callout {
+      padding: 40px;
+      border-radius: 16px;
+      background: var(--red-dim);
+      border: 1px solid rgba(224, 85, 85, 0.2);
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    .section-title {
-      font-size: 18px;
+    .venmo-callout-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 16px;
+    }
+
+    .venmo-callout-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .venmo-callout-text span {
+      color: var(--red);
+      font-style: normal;
       font-weight: 700;
+    }
+
+    /* WHAT I SEE */
+    .vision-section {
+      padding: 100px 48px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .vision-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 900;
+      line-height: 1.15;
       margin-bottom: 16px;
+      letter-spacing: -1px;
     }
 
-    /* ── TWO-COLUMN LAYOUT ── */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      margin-bottom: 32px;
-    }
-
-    /* ── AUDIENCE STATS ── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .stat-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      text-align: center;
-    }
-
-    .stat-box .value {
-      font-size: 20px;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text);
-    }
-
-    .stat-box .label {
-      font-size: 10px;
+    .vision-intro {
+      font-size: 16px;
       color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 2px;
+      margin-bottom: 56px;
+      max-width: 560px;
+      line-height: 1.7;
     }
 
-    .total-reach {
-      text-align: center;
-      padding: 10px;
-      background: rgba(99, 102, 241, 0.06);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 8px;
-      font-size: 13px;
-      color: var(--text-dim);
-      margin-bottom: 4px;
-    }
-
-    .total-reach strong {
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 15px;
-    }
-
-    /* ── SCORE CARD ── */
-    .score-card {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 16px;
-    }
-
-    .score-circle {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
+    .vision-items {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      gap: 0;
     }
 
-    .score-circle .num {
-      font-size: 22px;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      line-height: 1;
+    .vision-item {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 24px;
+      padding: 32px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: start;
+      transition: all 0.3s ease;
     }
 
-    .score-circle .denom {
-      font-size: 10px;
-      opacity: 0.7;
-    }
-
-    .score-detail {
-      flex: 1;
-    }
-
-    .score-detail .score-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .score-detail .score-desc {
-      font-size: 11px;
-      color: var(--text-dim);
-      line-height: 1.4;
-    }
-
-    .arrow-between {
-      font-size: 18px;
-      color: var(--text-dim);
-      flex-shrink: 0;
-    }
-
-    /* ── GAP LIST ── */
-    .gap-list {
-      list-style: none;
-    }
-
-    .gap-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 8px 0;
-      font-size: 13px;
-      line-height: 1.5;
-      color: var(--text-dim);
-      border-bottom: 1px solid rgba(42, 42, 58, 0.5);
-    }
-
-    .gap-list li:last-child {
+    .vision-item:last-child {
       border-bottom: none;
     }
 
-    .gap-list .icon {
-      flex-shrink: 0;
-      width: 20px;
-      height: 20px;
-      border-radius: 5px;
+    .vision-item:hover .vision-number {
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .vision-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
-      margin-top: 1px;
-    }
-
-    .gap-list strong {
-      color: var(--text);
-    }
-
-    /* ── OPPORTUNITY CARDS ── */
-    .opp-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .opp-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      border-left: 3px solid var(--accent);
-    }
-
-    .opp-card h4 {
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 5px;
-    }
-
-    .opp-card p {
-      font-size: 11px;
-      color: var(--text-dim);
-      line-height: 1.5;
-    }
-
-    /* ── PILOT SECTION ── */
-    .pilot-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px 28px;
-      margin-bottom: 20px;
-      border-top: 3px solid var(--accent);
-    }
-
-    .pilot-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 16px;
-    }
-
-    .pilot-header h3 {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .pilot-header .price {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .pilot-header .price-note {
-      font-size: 11px;
-      color: var(--text-dim);
-      font-family: 'Inter', sans-serif;
-      font-weight: 400;
-    }
-
-    .pilot-deliverables {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 20px;
-    }
-
-    .pilot-deliverables .item {
-      font-size: 12px;
-      color: var(--text-dim);
-      padding: 4px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .pilot-deliverables .check {
-      color: var(--green);
-      font-size: 12px;
+      transition: all 0.3s ease;
       flex-shrink: 0;
     }
 
-    /* ── AFTER PILOT ── */
-    .after-pilot {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
+    .vision-content-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
     }
 
-    .option-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-    }
-
-    .option-card .option-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 6px;
-    }
-
-    .option-card .option-price {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .option-card .option-desc {
-      font-size: 11px;
+    .vision-content-desc {
+      font-size: 14px;
       color: var(--text-dim);
-      line-height: 1.4;
+      line-height: 1.7;
     }
 
-    /* ── BOTTOM BAR ── */
-    .bottom-bar {
+    .vision-content-desc strong {
+      color: var(--gold);
+    }
+
+    /* REVENUE PREVIEW */
+    .revenue-section {
+      padding: 80px 48px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .revenue-bar-container {
+      margin-bottom: 48px;
+    }
+
+    .revenue-bar-label {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .revenue-bar-name {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .revenue-bar-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .revenue-bar-track {
+      height: 6px;
+      background: var(--surface);
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .revenue-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0;
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .revenue-total-box {
+      padding: 40px;
+      border-radius: 16px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      text-align: center;
+    }
+
+    .revenue-total-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .revenue-total-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .revenue-total-sub {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    /* WHO I AM */
+    .who-section {
+      padding: 100px 48px;
+      max-width: 900px;
+      margin: 0 auto;
       border-top: 1px solid var(--border);
     }
 
-    .bottom-bar .closing {
+    .who-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .who-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+    }
+
+    .who-text {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .who-text strong {
+      color: var(--text);
+    }
+
+    .credential-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .credential-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
       font-size: 14px;
       color: var(--text-dim);
-      max-width: 600px;
       line-height: 1.5;
-      font-style: italic;
     }
 
-    .bottom-bar .closing strong {
-      color: var(--text);
-      font-style: normal;
+    .credential-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+      margin-top: 6px;
     }
 
-    .cta-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 12px 28px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .cta-btn:hover {
-      box-shadow: 0 0 20px var(--accent-glow);
-      transform: translateY(-1px);
-    }
-
-    /* ── CONFIDENTIAL STRIP ── */
-    .confidential {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--border);
+    /* CTA */
+    .cta-section {
+      padding: 120px 48px;
+      max-width: 900px;
+      margin: 0 auto;
       text-align: center;
-      margin-top: 24px;
     }
 
-    /* ── PRINT ── */
-    @media print {
-      body {
-        padding: 24px 32px;
-        background: white;
-        color: #1a1a2e;
+    .cta-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .cta-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 24px;
+    }
+
+    .cta-headline em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .cta-sub {
+      font-size: 16px;
+      color: var(--text-dim);
+      max-width: 480px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 20px 48px;
+      background: var(--gold);
+      color: #080810;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(-100%);
+      transition: transform 0.4s ease;
+    }
+
+    .cta-button:hover::before {
+      transform: translateX(0);
+    }
+
+    .cta-button:hover {
+      box-shadow: 0 0 40px var(--gold-glow);
+      transform: translateY(-2px);
+    }
+
+    .cta-note {
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 1px;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 40px 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .footer-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+    }
+
+    .footer-site {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--gold);
+      text-decoration: none;
+      letter-spacing: 1px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .footer-site:hover {
+      opacity: 1;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
       }
 
-      .stat-box,
-      .score-card,
-      .opp-card,
-      .pilot-section,
-      .option-card {
-        border-color: #ddd;
-        background: #f9f9fc;
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.4;
       }
 
-      .section-label {
-        color: #6366f1;
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* SCROLL REVEAL */
+    .reveal {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    body.js-loaded .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+
+    body.js-loaded .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: 0.1s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: 0.2s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: 0.3s;
+    }
+
+    .reveal-delay-4 {
+      transition-delay: 0.4s;
+    }
+
+    /* MOBILE */
+    @media (max-width: 680px) {
+      .hero {
+        padding: 60px 24px 48px;
       }
 
-      .cta-btn {
-        display: none;
+      .numbers-section,
+      .venmo-section,
+      .vision-section,
+      .revenue-section,
+      .who-section,
+      .cta-section {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .numbers-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .number-block:first-child {
+        border-radius: 12px 12px 0 0;
+      }
+
+      .number-block:last-child {
+        border-radius: 0 0 12px 12px;
+      }
+
+      .gap-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .who-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .total-reach {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
       }
     }
   </style>
@@ -450,178 +828,321 @@
 
 <body>
 
-  <!-- ══ HEADER ══ -->
-  <div class="header">
-    <div class="header-left">
-      <h1>Revenue Architecture<br>for Your Friend Kevin</h1>
-      <p class="tagline">You've built a 700K+ audience across 7 platforms. This is the system to turn that attention
-        into predictable, compounding revenue.</p>
-    </div>
-    <div class="header-right">
-      <div class="name">Clifford McMahon</div>
-      <div class="contact">
-        Creator Revenue Operator<br>
-        cliffordmcmahon.com
+  <div class="ambient ambient-1"></div>
+  <div class="ambient ambient-2"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">Built specifically for Kevin McDonald</div>
+    <h1 class="hero-headline">
+      You've built<br>
+      something <em>real.</em><br>
+      The money should<br>
+      match it.
+    </h1>
+    <p class="hero-sub">
+      You have <strong>772K+ people</strong> across platforms who genuinely trust you.
+      Most creators with your reach are generating six figures in sponsorship revenue alone.
+      You're not. Here's what I think is happening — and what I'd do about it.
+    </p>
+    <div class="scroll-hint">Keep reading</div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- NUMBERS -->
+  <section class="numbers-section">
+    <div class="section-label reveal">Your audience — by platform</div>
+
+    <div class="numbers-grid reveal reveal-delay-1">
+      <div class="number-block">
+        <div class="number-platform">Instagram</div>
+        <div class="number-value">234K</div>
+        <div class="number-sub">followers</div>
       </div>
-    </div>
-  </div>
-
-  <!-- ══ TOP ROW: AUDIENCE + SCORE ══ -->
-  <div class="main-grid">
-
-    <!-- LEFT: Your Audience -->
-    <div>
-      <div class="section-label">Your Audience</div>
-
-      <div class="stats-row">
-        <div class="stat-box">
-          <div class="value">234K</div>
-          <div class="label">Instagram</div>
-        </div>
-        <div class="stat-box">
-          <div class="value">226.7K</div>
-          <div class="label">TikTok</div>
-        </div>
-        <div class="stat-box">
-          <div class="value">167.8K</div>
-          <div class="label">X / Twitter</div>
-        </div>
+      <div class="number-block">
+        <div class="number-platform">TikTok</div>
+        <div class="number-value">226.7K</div>
+        <div class="number-sub">followers</div>
       </div>
-      <div class="stats-row">
-        <div class="stat-box">
-          <div class="value">41K</div>
-          <div class="label">YouTube</div>
-        </div>
-        <div class="stat-box">
-          <div class="value">38K</div>
-          <div class="label">Threads</div>
-        </div>
-        <div class="stat-box">
-          <div class="value">15.7K</div>
-          <div class="label">Twitch</div>
-        </div>
-      </div>
-
-      <div class="total-reach">
-        Total Reach: <strong>714K confirmed</strong> · 876K estimated
+      <div class="number-block">
+        <div class="number-platform">X / Twitter</div>
+        <div class="number-value">167.8K</div>
+        <div class="number-sub">followers</div>
       </div>
     </div>
 
-    <!-- RIGHT: Revenue Health Score -->
-    <div>
-      <div class="section-label">Revenue Health Score</div>
+    <div class="total-reach reveal reveal-delay-2">
+      <div>
+        <div class="total-reach-label">Total Confirmed Reach</div>
+      </div>
+      <div class="total-reach-value">714K+</div>
+      <div class="total-reach-note">
+        across 5+ platforms<br>
+        <span style="color: var(--text-muted); font-size:11px;">estimated 876K including cross-follow overlap</span>
+      </div>
+    </div>
+  </section>
 
-      <div class="score-card">
-        <div class="score-circle" style="background:var(--red-dim);color:var(--red);">
-          <div class="num">2</div>
-          <div class="denom">/ 10</div>
-        </div>
-        <div class="arrow-between">→</div>
-        <div class="score-circle" style="background:var(--green-dim);color:var(--green);">
-          <div class="num">8</div>
-          <div class="denom">/ 10</div>
-        </div>
-        <div class="score-detail">
-          <div class="score-title">Current → 90-Day Target</div>
-          <div class="score-desc">Scored across revenue diversity, recurring income, sponsor infrastructure, owned
-            channels, and scalable income.</div>
+  <div class="divider"></div>
+
+  <!-- THE GAP / VENMO MOMENT -->
+  <section class="venmo-section">
+    <h2 class="venmo-headline reveal">
+      You have 714K people<br>
+      who trust you.<br>
+      Your Linktree has<br>
+      a <span class="strike">Venmo link.</span>
+    </h2>
+
+    <div class="gap-cards reveal reveal-delay-1">
+      <div class="gap-card bad">
+        <div class="gap-card-tag">What exists now</div>
+        <div class="gap-card-title">No rate card</div>
+        <div class="gap-card-desc">Brands who want to work with you have no idea what you charge, how to reach you, or
+          what they'd get. So they move on.</div>
+      </div>
+      <div class="gap-card bad">
+        <div class="gap-card-tag">What exists now</div>
+        <div class="gap-card-title">No audience data</div>
+        <div class="gap-card-desc">You don't know who's clicking what on your Linktree, where they came from, or what
+          they'd buy. Neither do brands.</div>
+      </div>
+      <div class="gap-card bad">
+        <div class="gap-card-tag">What exists now</div>
+        <div class="gap-card-title">Patreon capped at $7</div>
+        <div class="gap-card-desc">You have 1,254+ paying members with no premium tier. Superfans who'd pay $25/mo for
+          more access have nowhere to go.</div>
+      </div>
+      <div class="gap-card bad">
+        <div class="gap-card-tag">What exists now</div>
+        <div class="gap-card-title">One-off deals only</div>
+        <div class="gap-card-desc">If a brand does find you, it's a single post with no follow-up, no data delivered,
+          and no reason for them to come back.</div>
+      </div>
+    </div>
+
+    <div class="venmo-callout reveal reveal-delay-2">
+      <div class="venmo-callout-label">The honest truth</div>
+      <p class="venmo-callout-text">
+        Your audience represents <span>$3.9 trillion in global purchasing power.</span><br>
+        85% of them prefer brands that show up in LGBTQ+ media.<br>
+        Brands are desperate to reach them authentically.<br>
+        You're the bridge — and right now you're not charging for it.
+      </p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- WHAT I SEE -->
+  <section class="vision-section">
+    <h2 class="vision-headline reveal">Here's what<br>I'd build for you.</h2>
+    <p class="vision-intro reveal reveal-delay-1">Not generic advice. A specific system built around who you are, who
+      your audience is, and what they'll actually pay for.</p>
+
+    <div class="vision-items">
+
+      <div class="vision-item reveal">
+        <div class="vision-number">01</div>
+        <div>
+          <div class="vision-content-title">Your own site — with real tracking</div>
+          <div class="vision-content-desc">Replace Linktree with a page that actually tells you where your audience
+            comes from, what they click, and who they are. That data becomes your <strong>pitch to every brand.</strong>
+          </div>
         </div>
       </div>
 
-      <div class="section-label" style="margin-top:16px;">Key Gaps</div>
-      <ul class="gap-list">
-        <li>
-          <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
-          <span><strong>No media kit or rate card</strong> — sponsors don't know how to buy you</span>
-        </li>
-        <li>
-          <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
-          <span><strong>No email list</strong> — 100% platform-dependent, zero owned audience</span>
-        </li>
-        <li>
-          <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
-          <span><strong>No digital products</strong> — expertise isn't packaged for passive income</span>
-        </li>
-        <li>
-          <span class="icon" style="background:var(--red-dim);color:var(--red);">✕</span>
-          <span><strong>Patreon capped at $7</strong> — 1,254 members with no premium tier for superfans</span>
-        </li>
-      </ul>
-    </div>
-  </div>
+      <div class="vision-item reveal">
+        <div class="vision-number">02</div>
+        <div>
+          <div class="vision-content-title">An audience survey that builds your email list</div>
+          <div class="vision-content-desc">One survey that asks your fans what they want, what they'd buy, and what they
+            make — and requires an email to submit. Instant owned audience. <strong>Instant brand asset.</strong></div>
+        </div>
+      </div>
 
-  <!-- ══ MIDDLE: OPPORTUNITIES ══ -->
-  <div class="section-label">Revenue Opportunities I'd Build</div>
-  <div class="opp-grid">
-    <div class="opp-card" style="border-left-color:var(--green);">
-      <h4>Brand Sponsorships</h4>
-      <p>Build rate card, media kit, and a 25-brand prospect pipeline. Bundle IG + TikTok + Twitch + YouTube into tiered
-        packages. One stream becomes 3–5 branded touchpoints.</p>
-    </div>
-    <div class="opp-card" style="border-left-color:var(--green);">
-      <h4>Patreon Tier Expansion</h4>
-      <p>Add a $15–25 VIP tier for superfans. With 1,254 members already paying, even 10% upgrading adds $1,200–2,500/mo
-        in recurring revenue.</p>
-    </div>
-    <div class="opp-card" style="border-left-color:var(--accent);">
-      <h4>LGBTQ+ Audience Premium</h4>
-      <p>$3.9T in global purchasing power. 85% prefer brands in LGBT media. 66% stay loyal even when cheaper options
-        exist. This is a premium sponsorship position — priced accordingly.</p>
-    </div>
-    <div class="opp-card" style="border-left-color:var(--accent);">
-      <h4>Digital Products + Affiliate</h4>
-      <p>Fitness guides, workout programs, curated product recs with tracked affiliate links. Revenue that works while
-        you sleep.</p>
-    </div>
-  </div>
+      <div class="vision-item reveal">
+        <div class="vision-number">03</div>
+        <div>
+          <div class="vision-content-title">A sponsorship system built around you</div>
+          <div class="vision-content-desc">Rate cards. Campaign bundles across IG + TikTok + YouTube + Twitch. A brand
+            pipeline of 25–50 targets who are <strong>the right fit for your LGBTQ+ audience</strong> — underwear
+            brands, Lululemon, grooming, wellness apps, brands that want to reach your community authentically.</div>
+        </div>
+      </div>
 
-  <!-- ══ PILOT + PRICING ══ -->
-  <div class="pilot-section">
-    <div class="pilot-header">
-      <h3>90-Day Pilot</h3>
-      <div style="text-align:right;">
-        <div class="price">$2,000<span class="price-note"> /month</span></div>
-        <div style="font-size:11px;color:var(--text-dim);">$6,000 total · no commission · no % taken</div>
+      <div class="vision-item reveal">
+        <div class="vision-number">04</div>
+        <div>
+          <div class="vision-content-title">A calendar that sells itself</div>
+          <div class="vision-content-desc">Themed monthly content with built-in sponsorship slots. Think: Pride Month
+            with an STD testing partner. Gym season with an apparel brand. <strong>Each month is a campaign, not a
+              one-off post.</strong> Sponsors get performance data. You get renewals.</div>
+        </div>
+      </div>
+
+      <div class="vision-item reveal">
+        <div class="vision-number">05</div>
+        <div>
+          <div class="vision-content-title">Long-term deals, not random brand emails</div>
+          <div class="vision-content-desc">3-month, 6-month, 12-month partnerships. Brands that stay. Revenue you can
+            actually plan around. <strong>Predictable income</strong> instead of wondering what's next.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- REVENUE PREVIEW -->
+  <section class="revenue-section">
+    <div class="section-label reveal">Conservative revenue projection — 12 months</div>
+
+    <div style="margin: 40px 0 48px;" class="reveal reveal-delay-1">
+
+      <div class="revenue-bar-container">
+        <div class="revenue-bar-label">
+          <span class="revenue-bar-name">Brand Sponsorships (structured campaigns)</span>
+          <span class="revenue-bar-value">$96K–$144K/yr</span>
+        </div>
+        <div class="revenue-bar-track">
+          <div class="revenue-bar-fill" style="background: var(--gold); width: 0;" data-width="85%"></div>
+        </div>
+      </div>
+
+      <div class="revenue-bar-container" style="margin-top: 20px;">
+        <div class="revenue-bar-label">
+          <span class="revenue-bar-name">Patreon — restructured with premium tier</span>
+          <span class="revenue-bar-value">$18K–$30K/yr</span>
+        </div>
+        <div class="revenue-bar-track">
+          <div class="revenue-bar-fill" style="background: var(--pink); width: 0;" data-width="35%"></div>
+        </div>
+      </div>
+
+      <div class="revenue-bar-container" style="margin-top: 20px;">
+        <div class="revenue-bar-label">
+          <span class="revenue-bar-name">Digital products + affiliate</span>
+          <span class="revenue-bar-value">$12K–$24K/yr</span>
+        </div>
+        <div class="revenue-bar-track">
+          <div class="revenue-bar-fill" style="background: var(--cyan); width: 0;" data-width="22%"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="revenue-total-box reveal reveal-delay-2">
+      <div class="revenue-total-label">Conservative 12-month potential</div>
+      <div class="revenue-total-value">$150K+</div>
+      <div class="revenue-total-sub">Based on your current audience size — before any growth</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- WHO I AM -->
+  <section class="who-section">
+    <div class="who-grid">
+      <div class="reveal">
+        <h2 class="who-headline">Why I'm the person to build this.</h2>
+        <p class="who-text">
+          I'm not a manager. I'm not an influencer agency. I'm a <strong>revenue systems builder</strong> who spent
+          years in enterprise sales generating <strong>$4.46M+ in incremental revenue</strong> — and I'm applying that
+          same infrastructure thinking to creators.
+        </p>
+        <p class="who-text">
+          I built this because I've watched your content, and I think you're one of the most undermonetized creators in
+          your space. That bothers me.
+        </p>
+      </div>
+      <div class="credential-list reveal reveal-delay-2">
+        <div class="credential-item">
+          <div class="credential-dot"></div>
+          <span>$4.46M+ incremental revenue generated in enterprise sales environments</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-dot"></div>
+          <span>105%+ quota attainment across 13 consecutive quarters</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-dot"></div>
+          <span>AI-driven workflow systems that turn audience data into sponsor pitches</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-dot"></div>
+          <span>Built revenue systems — not content strategy, not social management</span>
+        </div>
+        <div class="credential-item">
+          <div class="credential-dot"></div>
+          <span>Specifically focused on LGBTQ+ creators and the brands that want to reach their audiences</span>
+        </div>
       </div>
     </div>
-    <div class="pilot-deliverables">
-      <div class="item"><span class="check">✓</span> Full revenue audit + baseline score</div>
-      <div class="item"><span class="check">✓</span> Sponsor pipeline system (25+ brands)</div>
-      <div class="item"><span class="check">✓</span> Rate card + campaign packaging</div>
-      <div class="item"><span class="check">✓</span> Patreon tier restructure</div>
-      <div class="item"><span class="check">✓</span> Media kit + tracking infrastructure</div>
-      <div class="item"><span class="check">✓</span> Revenue dashboards + reporting</div>
-    </div>
-  </div>
+  </section>
 
-  <div class="section-label">After The Pilot</div>
-  <div class="after-pilot">
-    <div class="option-card">
-      <div class="option-label" style="color:var(--accent);">Option A</div>
-      <div class="option-price">$3,500/month</div>
-      <div class="option-desc">Flat retainer. No commission, no tracking. Predictable and simple.</div>
-    </div>
-    <div class="option-card" style="border-color:rgba(99,102,241,0.3);">
-      <div class="option-label" style="color:var(--green);">Option B — Recommended</div>
-      <div class="option-price">$2,000/mo + 15%</div>
-      <div class="option-desc">Commission only on <strong style="color:var(--text);">new revenue above your current
-          baseline</strong>. You only pay the % when I've already made you money you didn't have before.</div>
-    </div>
-  </div>
+  <div class="divider"></div>
 
-  <!-- ══ BOTTOM ══ -->
-  <div class="bottom-bar">
-    <div class="closing">
-      This overview covers the highlights — <strong>I'd love to walk through the full analysis together.</strong> I've
-      built a detailed deck covering your audience data, platform metrics, revenue scoring framework, and the full
-      90-day build plan.
-    </div>
-    <a href="mailto:rycliffmc@gmail.com?subject=Revenue%20Architecture%20—%20Let's%20Talk" class="cta-btn">Let's Set Up
-      a Call</a>
-  </div>
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-eyebrow reveal">No pressure. Just a conversation.</div>
+    <h2 class="cta-headline reveal reveal-delay-1">
+      I built the full plan.<br>
+      Want to see <em>all of it?</em>
+    </h2>
+    <p class="cta-sub reveal reveal-delay-2">
+      This is the overview. There's a full 90-day revenue architecture deck behind it — sponsorship pipeline, Patreon
+      restructure, the calendar strategy, all of it. I'll walk you through it whenever you're ready.
+    </p>
+    <a href="https://www.instagram.com/yourfriendkevin_/" class="cta-button reveal reveal-delay-3" target="_blank">
+      Just reply to my message on Instagram
+    </a>
+    <div class="cta-note reveal reveal-delay-4">or reach me at contact@cliffordmcmahon.com</div>
+  </section>
 
-  <div class="confidential">Confidential · Prepared for Your Friend Kevin · March 2026</div>
+  <footer>
+    <div class="footer-name">CLIFFORD McMAHON</div>
+    <a href="https://cliffordmcmahon.com" class="footer-site">cliffordmcmahon.com</a>
+  </footer>
 
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script>
+    // Scroll reveal
+    document.body.classList.add('js-loaded');
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          // Animate revenue bars when visible
+          const bars = entry.target.querySelectorAll('.revenue-bar-fill');
+          bars.forEach(bar => {
+            setTimeout(() => {
+              bar.style.width = bar.dataset.width;
+            }, 300);
+          });
+        }
+      });
+    }, { threshold: 0.12 });
+
+    reveals.forEach(el => observer.observe(el));
+
+    // Also watch for revenue bars in their parent section
+    document.querySelectorAll('.revenue-bar-fill').forEach(bar => {
+      const barObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.style.width = entry.target.dataset.width;
+            }, 300);
+          }
+        });
+      });
+      barObserver.observe(bar);
+    });
+  </script>
 </body>
 
 </html>
